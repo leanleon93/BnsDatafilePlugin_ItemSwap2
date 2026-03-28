@@ -33,7 +33,7 @@ void ConfigUiPanel(void* userData) {
 
 	g_imgui->Separator();
 	if (g_imgui->Button("Open Item Browser")) {
-		g_itemBrowserOpen = true;
+		g_itemBrowserOpen = !g_itemBrowserOpen;
 	}
 	g_imgui->Separator();
 	static char newSwapName[128] = "";
@@ -49,15 +49,15 @@ void ConfigUiPanel(void* userData) {
 		imgui->NextColumn();
 
 		imgui->Text("From Id");
-		imgui->SetColumnWidth(2, 65.0f);
+		imgui->SetColumnWidth(2, 75.0f);
 		imgui->NextColumn();
 
 		imgui->Text("To Id");
-		imgui->SetColumnWidth(3, 65.0f);
+		imgui->SetColumnWidth(3, 75.0f);
 		imgui->NextColumn();
 
 		imgui->Text("");
-		imgui->SetColumnWidth(4, 75.0f);
+		imgui->SetColumnWidth(4, 100.0f);
 		imgui->NextColumn();
 
 		imgui->Separator();
@@ -68,6 +68,7 @@ void ConfigUiPanel(void* userData) {
 			imgui->PushIdInt(idx);
 
 			if (g_imgui->Checkbox("", &swap.enabled)) {
+				g_pluginConfig.configData.InvalidateCache();
 				g_pluginConfig.Save();
 			}
 			imgui->NextColumn();
@@ -96,19 +97,13 @@ void ConfigUiPanel(void* userData) {
 				strncpy_s(newSwapName, swap.name.c_str(), sizeof(newSwapName) - 1);
 				g_newSwapFrom = swap.fromId;
 				g_newSwapTo = swap.toId;
-				itemSwaps.erase(
-					std::remove(itemSwaps.begin(), itemSwaps.end(), swap),
-					itemSwaps.end()
-				);
+				g_pluginConfig.configData.RemoveItemSwap(swap);
 				g_pluginConfig.Save();
 				break; // Break out of the loop since the vector has changed
 			}
-			g_imgui->SameLine(0.0f, 10.0f);
+			g_imgui->SameLine(0.0f, 5.0f);
 			if (g_imgui->SmallButton("Remove")) {
-				itemSwaps.erase(
-					std::remove(itemSwaps.begin(), itemSwaps.end(), swap),
-					itemSwaps.end()
-				);
+				g_pluginConfig.configData.RemoveItemSwap(swap);
 				g_pluginConfig.Save();
 				break; // Break out of the loop since the vector has changed
 			}

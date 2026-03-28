@@ -113,11 +113,21 @@ static void FillItemCache(std::unordered_map<unsigned __int64, ItemBrowserEntry>
 		if (record->name2.Key != 0) {
 			auto itemName = GetText<text_Record>(g_dataManager, record->name2.Key, g_oFind);
 			if (itemName && itemName->text.ReadableText) {
-				entry.name = itemName->text.ReadableText;
+				std::wstring trimmedName = itemName->text.ReadableText;
+				trimmedName.erase(trimmedName.find_last_not_of(L" \t\n\r\f\v") + 1); // Trim trailing whitespace
+				if (!trimmedName.empty()) {
+					entry.name = trimmedName;
+				}
+				else {
+					entry.name = L"(No Name)";
+				}
 			}
 			else {
 				entry.name = L"(No Name)";
 			}
+		}
+		else {
+			entry.name = L"(No Name)";
 		}
 		entry.category1 = record->game_category_1;
 		entry.category2 = record->game_category_2;
@@ -127,9 +137,39 @@ static void FillItemCache(std::unordered_map<unsigned __int64, ItemBrowserEntry>
 		});
 }
 
+const std::vector<std::string> categoryNames = { "none", "weapon", "accessory", "dress" };
+
+
+inline static std::vector<const char*> ToCStringVector(const std::vector<std::string>& strings) {
+	std::vector<const char*> cstrs;
+	cstrs.reserve(strings.size());
+	for (const auto& s : strings) {
+		cstrs.push_back(s.c_str());
+	}
+	return cstrs;
+}
+
+static std::vector<const ItemBrowserEntry*> FilterEntries(const std::vector<const ItemBrowserEntry*>& entries, const std::string& searchStr, int category) {
+	std::vector<const ItemBrowserEntry*> filtered;
+	for (const auto* entry : entries) {
+		std::string nameStr = WStringToString(entry->name);
+		std::string nameStrLower = nameStr;
+		std::transform(nameStrLower.begin(), nameStrLower.end(), nameStrLower.begin(), ::tolower);
+
+		// Convert item ID to string for comparison
+		std::string idStr = std::to_string(entry->id);
+
+		// Check if the search term matches the name or the ID
+		if ((searchStr.empty() || WordsInOrderMatch(nameStrLower, searchStr) || idStr.find(searchStr) != std::string::npos) && (category == 0 || category == entry->category2)) {
+			filtered.push_back(entry);
+		}
+	}
+	return filtered;
+}
+
 void ItemBrowserUi(void* userData) {
 	auto* imgui = g_imgui;
-	if (imgui == nullptr || !g_itemBrowserOpen) {
+	if (imgui == nullptr) {
 		return;
 	}
 	static bool firstOpen = true;
@@ -138,6 +178,21 @@ void ItemBrowserUi(void* userData) {
 	static std::vector<const ItemBrowserEntry*> filteredEntries;
 	static bool cacheBuilt = false;
 	static char lastSearchBuffer[128] = "";
+
+	if (!g_itemBrowserOpen) {
+		if (cacheBuilt) {
+			// Clear the cache when the window closes
+			itemCache.clear();
+			sortedEntries.clear();
+			filteredEntries.clear();
+			cacheBuilt = false;
+		}
+		return;
+	}
+
+	// Pagination variables
+	static int currentPage = 0;
+	static const int itemsPerPage = 50;
 
 	// Build the cache and sort entries only once
 	if (!cacheBuilt) {
@@ -160,14 +215,15 @@ void ItemBrowserUi(void* userData) {
 	}
 
 	if (firstOpen) {
-		g_imgui->SetNextWindowSize(600.0f, 400.0f, 1);
+		g_imgui->SetNextWindowSize(850.0f, 1050.0f, 1);
 		firstOpen = false;
 	}
 
-	g_imgui->Begin("Item Browser (Beta)", &g_itemBrowserOpen, 32);
+	g_imgui->Begin("Item Browser", &g_itemBrowserOpen, 32);
 	static char searchBuffer[128] = "";
-	g_imgui->InputText("Search", searchBuffer, sizeof(searchBuffer));
-	g_imgui->Separator();
+	static int selectedCategory = 0; // 0 means no filter
+	imgui->Text("Search by Name:");
+	g_imgui->InputText("##NameSearch", searchBuffer, sizeof(searchBuffer));
 
 	// Filter items only when the search buffer changes
 	if (strcmp(searchBuffer, lastSearchBuffer) != 0) {
@@ -177,27 +233,70 @@ void ItemBrowserUi(void* userData) {
 		std::transform(searchStr.begin(), searchStr.end(), searchStr.begin(), ::tolower);
 
 		filteredEntries.clear();
-		if (searchStr.empty()) {
+		if (searchStr.empty() && selectedCategory == 0) {
 			// If the search buffer is empty, display all items
 			filteredEntries = sortedEntries;
 		}
 		else {
 			// Otherwise, filter the items
-			for (const auto* entry : sortedEntries) {
-				std::string nameStr = WStringToString(entry->name);
-				std::string nameStrLower = nameStr;
-				std::transform(nameStrLower.begin(), nameStrLower.end(), nameStrLower.begin(), ::tolower);
-
-				// Convert item ID to string for comparison
-				std::string idStr = std::to_string(entry->id);
-
-				// Check if the search term matches the name or the ID
-				if (WordsInOrderMatch(nameStrLower, searchStr) || idStr.find(searchStr) != std::string::npos) {
-					filteredEntries.push_back(entry);
-				}
-			}
+			filteredEntries = FilterEntries(sortedEntries, searchStr, selectedCategory);
 		}
+		// Reset pagination when the search changes
+		currentPage = 0;
 	}
+
+	// Category filter dropdown
+
+	static auto categoryCtrs = ToCStringVector(categoryNames);
+	imgui->Text("Filter by Category:");
+	if (imgui->Combo("##CategoryFilter", &selectedCategory, categoryCtrs.data(), categoryCtrs.size(), categoryCtrs.size())) {
+		// Reset pagination when the category filter changes
+		currentPage = 0;
+
+		filteredEntries.clear();
+		std::string searchStr = searchBuffer;
+		std::transform(searchStr.begin(), searchStr.end(), searchStr.begin(), ::tolower);
+		filteredEntries = FilterEntries(sortedEntries, searchStr, selectedCategory);
+	}
+	imgui->Spacing();
+	g_imgui->Separator();
+	imgui->Spacing();
+	// Pagination controls
+	int totalPages = (filteredEntries.size() + itemsPerPage - 1) / itemsPerPage;
+	if (totalPages > 1) {
+		if (imgui->Button("First")) {
+			currentPage = 0;
+		}
+		imgui->SameLineDefault();
+		if (imgui->Button("-10")) {
+			currentPage = (std::max)(0, currentPage - 10);
+		}
+		imgui->SameLineDefault();
+		if (imgui->Button("Previous")) {
+			currentPage = (currentPage > 0) ? currentPage - 1 : 0;
+		}
+		imgui->SameLineDefault();
+		imgui->Text("Page %d of %d", currentPage + 1, totalPages);
+		imgui->SameLineDefault();
+		if (imgui->Button("Next")) {
+			currentPage = (currentPage < totalPages - 1) ? currentPage + 1 : totalPages - 1;
+		}
+		imgui->SameLineDefault();
+		if (imgui->Button("+10")) {
+			currentPage = (std::min)(totalPages - 1, currentPage + 10);
+		}
+		imgui->SameLineDefault();
+		if (imgui->Button("Last")) {
+			currentPage = totalPages - 1;
+		}
+		imgui->Spacing();
+		g_imgui->Separator();
+		imgui->Spacing();
+	}
+
+	// Display only the items for the current page
+	int startIdx = currentPage * itemsPerPage;
+	int endIdx = (std::min)(startIdx + itemsPerPage, (int)filteredEntries.size());
 
 	imgui->Columns(5, "ItemColumns", false);
 
@@ -206,11 +305,11 @@ void ItemBrowserUi(void* userData) {
 	imgui->NextColumn();
 
 	imgui->Text("Level");
-	imgui->SetColumnWidth(1, 55.0f);
+	imgui->SetColumnWidth(1, 50.0f);
 	imgui->NextColumn();
 
 	imgui->Text("Name");
-	imgui->SetColumnWidth(2, 275.0f);
+	imgui->SetColumnWidth(2, 400.0);
 	imgui->NextColumn();
 
 	imgui->Text("Categories");
@@ -223,10 +322,9 @@ void ItemBrowserUi(void* userData) {
 
 	imgui->Separator();
 
-	// Iterate only through the filtered entries
-	int idx = 0;
-	for (const auto* entry : filteredEntries) {
-		g_imgui->PushIdInt(idx);
+	for (int i = startIdx; i < endIdx; ++i) {
+		const auto* entry = filteredEntries[i];
+		g_imgui->PushIdInt(i);
 		std::string nameStr = WStringToString(entry->name);
 
 		imgui->Text("%d", entry->id);
@@ -254,7 +352,6 @@ void ItemBrowserUi(void* userData) {
 		}
 		imgui->NextColumn();
 		g_imgui->PopId();
-		++idx;
 	}
 	imgui->Columns(1, nullptr, false);
 

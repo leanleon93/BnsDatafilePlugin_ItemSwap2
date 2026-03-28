@@ -27,12 +27,12 @@ public:
 		mutable std::unordered_map<int, int> cachedSwapMap = {}; //not serialized, generated on demand for quick lookups
 		mutable bool cacheValid = false; //not serialized, indicates if the cache is valid or needs to be regenerated
 
+		
+	public:
 		// Invalidate cache when data changes
 		void InvalidateCache() {
 			cacheValid = false;
 		}
-	public:
-
 		std::vector<ItemSwap>& GetItemSwaps() {
 			return itemSwaps;
 		}

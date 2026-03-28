@@ -1,0 +1,49 @@
+name: Update Submodules Periodically
+on:
+  schedule:
+    - cron: "0 0 * * 3"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+    outputs:
+      updated: ${{ steps.update_submodules.outputs.updated }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update Submodules
+        id: update_submodules
+        run: |
+          git submodule update --remote --merge
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Submodule updates detected. Committing changes..."
+            git commit -a -m "Update submodules to the latest version"
+            git push origin master
+            echo "updated=true" >> $GITHUB_OUTPUT
+          else
+            echo "No submodule updates detected."
+            echo "updated=false" >> $GITHUB_OUTPUT
+          fi
+          
+  build-and-release:
+    if: needs.update-submodules.outputs.updated == 'true'
+    uses: ./.github/workflows/cmake-single-platform.yml
+    needs: update-submodules

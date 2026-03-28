@@ -1,0 +1,12 @@
+[submodule "external/PluginSdk"]
+	path = external/PluginSdk
+	url = https://github.com/leanleon93/BnsPlugin_DatafilePluginloader
+	branch = minimal-sdk-headers
+[submodule "external/BnsPluginTables/NEO"]
+	path = external/BnsPluginTables/NEO
+	url = https://github.com/leanleon93/BnsPluginTables
+	branch = main
+[submodule "external/BnsPluginTables/LIVE"]
+	path = external/BnsPluginTables/LIVE
+	url = https://github.com/leanleon93/BnsPluginTables
+	branch = live-server

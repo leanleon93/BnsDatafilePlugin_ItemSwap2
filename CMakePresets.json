@@ -1,0 +1,167 @@
+﻿{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "windows-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "x64-debug",
+      "displayName": "01. Debug NEO Global",
+      "inherits": "windows-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_PERSISTENCE": false,
+        "BNSKR": false,
+        "BNSLIVE": false
+      }
+    },
+    {
+      "name": "x64-debug-with-persistence",
+      "displayName": "02. Debug NEO Global (Persistent)",
+      "inherits": "x64-debug",
+      "cacheVariables": {
+        "ENABLE_PERSISTENCE": true
+      }
+    },
+    {
+      "name": "x64-debug-kr",
+      "displayName": "03. Debug NEO KR",
+      "inherits": "windows-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_PERSISTENCE": false,
+        "BNSKR": true,
+        "BNSLIVE": false
+      }
+    },
+    {
+      "name": "x64-debug-kr-with-persistence",
+      "displayName": "04. Debug NEO KR (Persistent)",
+      "inherits": "x64-debug-kr",
+      "cacheVariables": {
+        "ENABLE_PERSISTENCE": true
+      }
+    },
+    {
+      "name": "x64-release",
+      "displayName": "05. Release NEO Global",
+      "inherits": "x64-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_PERSISTENCE": false
+      }
+    },
+    {
+      "name": "x64-release-with-persistence",
+      "displayName": "06. Release NEO Global (Persistent)",
+      "inherits": "x64-release",
+      "cacheVariables": {
+        "ENABLE_PERSISTENCE": true
+      }
+    },
+    {
+      "name": "x64-release-kr",
+      "displayName": "07. Release NEO KR",
+      "inherits": "x64-debug-kr",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_PERSISTENCE": false
+      }
+    },
+    {
+      "name": "x64-release-kr-with-persistence",
+      "displayName": "08. Release NEO KR (Persistent)",
+      "inherits": "x64-release-kr",
+      "cacheVariables": {
+        "ENABLE_PERSISTENCE": true
+      }
+    },
+
+    {
+      "name": "x64-debug-live",
+      "displayName": "09. Debug LIVE Global",
+      "inherits": "x64-debug",
+      "cacheVariables": {
+        "BNSLIVE": true
+      }
+    },
+    {
+      "name": "x64-debug-live-with-persistence",
+      "displayName": "10. Debug LIVE Global (Persistent)",
+      "inherits": "x64-debug-live",
+      "cacheVariables": {
+        "ENABLE_PERSISTENCE": true
+      }
+    },
+    {
+      "name": "x64-debug-live-kr",
+      "displayName": "11. Debug LIVE KR",
+      "inherits": "x64-debug-kr",
+      "cacheVariables": {
+        "BNSLIVE": true
+      }
+    },
+    {
+      "name": "x64-debug-live-kr-with-persistence",
+      "displayName": "12. Debug LIVE KR (Persistent)",
+      "inherits": "x64-debug-live-kr",
+      "cacheVariables": {
+        "ENABLE_PERSISTENCE": true
+      }
+    },
+
+    {
+      "name": "x64-release-live",
+      "displayName": "13. Release LIVE Global",
+      "inherits": "x64-release",
+      "cacheVariables": {
+        "BNSLIVE": true
+      }
+    },
+    {
+      "name": "x64-release-live-with-persistence",
+      "displayName": "14. Release LIVE Global (Persistent)",
+      "inherits": "x64-release-live",
+      "cacheVariables": {
+        "ENABLE_PERSISTENCE": true
+      }
+    },
+    {
+      "name": "x64-release-live-kr",
+      "displayName": "15. Release LIVE KR",
+      "inherits": "x64-release-kr",
+      "cacheVariables": {
+        "BNSLIVE": true
+      }
+    },
+    {
+      "name": "x64-release-live-kr-with-persistence",
+      "displayName": "16. Release LIVE KR (Persistent)",
+      "inherits": "x64-release-live-kr",
+      "cacheVariables": {
+        "ENABLE_PERSISTENCE": true
+      }
+    }
+  ]
+}

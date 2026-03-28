@@ -25,4 +25,10 @@ namespace PluginGlobalState {
 	inline FindPatternInAllReadableSectionsFunc g_findPatternInAllReadableSections = nullptr;
 
 	inline PluginConfig g_pluginConfig = {};
+
+	inline bool g_itemBrowserOpen = false;
+	inline int g_newSwapFrom = 0;
+	inline int g_newSwapTo = 0;
+	inline unsigned long long eeIconTextureId = 0;
+	inline unsigned long long ee2IconTextureId = 0;
 }

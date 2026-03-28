@@ -9,6 +9,7 @@
 #include <mutex>
 #include "Logger.h"
 #include <chrono>
+#include <Dynamic/icontexture/AAA_icontexture_RecordBase.h>
 
 /**
  * @file BnsDatafilePlugin.cpp

@@ -1,11 +1,11 @@
 ﻿# SET YOUR PLUGIN NAME AND VERSION HERE
-set(PLUGIN_NAME "Template")
-project ("${PLUGIN_NAME}Plugin" VERSION 1.0.0)
+set(PLUGIN_NAME "ItemSwap")
+project ("${PLUGIN_NAME}Plugin" VERSION 2.0.0)
 
 configure_file(pluginversion.h.in pluginversion.h @ONLY)
 configure_file(${CMAKE_SOURCE_DIR}/version.rc.in version.rc @ONLY)
 
-add_library(${PROJECT_NAME} SHARED "BnsDatafilePlugin.cpp" "UiPanel.cpp" "plugin_config.cpp" "datafile_detours.cpp")
+add_library(${PROJECT_NAME} SHARED "BnsDatafilePlugin.cpp" "UiPanel.cpp" "plugin_config.cpp" "datafile_detours.cpp" "UiPanels/ItemBrowserUiPanel.cpp")
 # Trim whitespace
 string(STRIP "${PLUGIN_NAME}" PLUGIN_NAME)
 

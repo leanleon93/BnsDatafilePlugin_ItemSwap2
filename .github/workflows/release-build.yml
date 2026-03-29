@@ -59,7 +59,7 @@ jobs:
             PATCH=$((PATCH + 1))
           fi
           NEW_TAG="v$MAJOR.$MINOR.$PATCH"
-          echo "New tag: $NEW_TAG"
+          echo "[DEBUG] NEW_TAG='$NEW_TAG'"
           echo "tag_name=$NEW_TAG" >> $GITHUB_OUTPUT
 
           git tag -a $NEW_TAG -m "Release $NEW_TAG"
@@ -105,7 +105,7 @@ jobs:
             ${{github.workspace}}/build/bin/${{ matrix.build_type }}/**/*.dll
 
   post_build:
-    needs: build
+    needs: [build, create_tag]
     runs-on: ubuntu-latest
 
     steps:
@@ -123,6 +123,14 @@ jobs:
         uses: actions/download-artifact@v8.0.1
         with:
           path: artifacts
+
+      - name: Debug Directory
+        run: |
+          echo "Current Directory:"
+          pwd
+          echo "Contents:"
+          ls -R artifacts
+        shell: bash
 
       - name: Set DLL paths output
         id: find_dlls

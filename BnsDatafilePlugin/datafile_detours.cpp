@@ -1,4 +1,4 @@
-#include "datafile_detours.h"
+﻿#include "datafile_detours.h"
 #include "GlobalState.h"
 #include "pluginhelpers.h"
 #include <DatafilePluginsdk.h>
@@ -50,7 +50,7 @@ PluginReturnData __fastcall DatafileItemDetour(PluginExecuteParams* params) {
 	currentKey.key = params->key;
 	const auto swapMap = g_pluginConfig.configData.GetEnabledSwapMap();
 	if (swapMap.empty()) return {};
-	auto it = swapMap.find(currentKey.key);
+	auto it = swapMap.find(currentKey.id);
 	if (it != swapMap.end()) {
 		currentKey.id = it->second;
 		currentKey.level = 1;

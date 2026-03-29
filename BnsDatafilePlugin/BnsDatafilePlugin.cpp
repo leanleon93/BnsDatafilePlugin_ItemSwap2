@@ -10,6 +10,8 @@
 #include "Logger.h"
 #include <chrono>
 #include <Dynamic/icontexture/AAA_icontexture_RecordBase.h>
+#include <memory>
+#include <wchar.h>
 
 /**
  * @file BnsDatafilePlugin.cpp
@@ -21,8 +23,33 @@
  */
 
 using namespace PluginGlobalState;
+using namespace BnsTables::Dynamic;
 
 static std::unique_ptr<std::thread> g_setupThread;
+
+
+static void SetupEE() {
+	if (g_dataManager == nullptr || g_oFind == nullptr) return;
+
+	bool foundEE1 = false;
+	bool foundEE2 = false;
+
+	ForEachRecord<icontexture_Record>(g_dataManager, L"icontexture", [&](icontexture_Record* record, size_t) {
+		if (record == nullptr) return true;
+		if (foundEE1 && foundEE2) return false; //stop iteration if both found
+		if (record->alias && wcscmp(record->alias, L"Costume_65071_JinF_col1") == 0) {
+			eeIconTextureId = record->key.key;
+			foundEE1 = true;
+			return true;
+		}
+		if (record->alias && wcscmp(record->alias, L"Costume_19169_JinM_col1") == 0) {
+			ee2IconTextureId = record->key.key;
+			foundEE2 = true;
+			return true;
+		}
+		return true; // continue iteration
+		});
+}
 
 /**
  * @brief Asynchronous setup function.
@@ -34,7 +61,7 @@ static std::unique_ptr<std::thread> g_setupThread;
 static void AsyncSetup() {
 	{
 		std::lock_guard<std::mutex> lock(g_setupMutex);
-		//do your async setup here
+		SetupEE();
 		g_isReady.store(true, std::memory_order_release); //Indicate that setup is complete
 	}
 	g_setupCv.notify_one();

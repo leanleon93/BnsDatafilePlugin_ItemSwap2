@@ -15,7 +15,7 @@ jobs:
   create_tag:
     runs-on: ubuntu-latest
     outputs:
-      tag_name: ${{ steps.set_tag.outputs.tag_name }}
+      tag_name: ${{ steps.get_version.outputs.tag_name }}
 
     steps:
       - name: Checkout
@@ -60,7 +60,7 @@ jobs:
           fi
           NEW_TAG="v$MAJOR.$MINOR.$PATCH"
           echo "New tag: $NEW_TAG"
-          echo "::set-output name=tag_name::$NEW_TAG"
+          echo "tag_name=$NEW_TAG" >> $GITHUB_OUTPUT
 
           git tag -a $NEW_TAG -m "Release $NEW_TAG"
           git push origin $NEW_TAG
@@ -97,13 +97,30 @@ jobs:
       - name: Build
         run: cmake --build ${{github.workspace}}/build
 
+      - name: Upload DLLs
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ matrix.build_type }}-${{ matrix.enable_persistence }}-${{ matrix.bnskr }}-${{ matrix.bnslive }}
+          path: |
+            out/build/**/*.dll
+
+  post_build:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download DLLs
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
       - name: Set DLL paths output
         id: find_dlls
         run: |
-          echo "dll_path_eu=out/build/x64-release-with-persistence/bin/itemswap_NEO.dll" >> $GITHUB_OUTPUT
-          echo "dll_path_live_eu=out/build/x64-release-live-with-persistence/bin/iitemswap_LIVE.dll" >> $GITHUB_OUTPUT
-          echo "dll_path_kr=out/build/x64-release-kr-with-persistence/bin/itemswap_NEO_KR.dll" >> $GITHUB_OUTPUT
-          echo "dll_path_live_kr=out/build/x64-release-live-kr-with-persistence/bin/itemswap_LIVE_KR.dll" >> $GITHUB_OUTPUT
+          echo "dll_path_eu=artifacts/build-Release-ON-OFF-OFF/x64-release-with-persistence/bin/itemswap_NEO.dll" >> $GITHUB_OUTPUT
+          echo "dll_path_live_eu=artifacts/build-Release-ON-OFF-ON/x64-release-live-with-persistence/bin/itemswap_LIVE.dll" >> $GITHUB_OUTPUT
+          echo "dll_path_kr=artifacts/build-Release-ON-ON-OFF/x64-release-kr-with-persistence/bin/itemswap_NEO_KR.dll" >> $GITHUB_OUTPUT
+          echo "dll_path_live_kr=artifacts/build-Release-ON-ON-ON/x64-release-live-kr-with-persistence/bin/itemswap_LIVE_KR.dll" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Generate release notes

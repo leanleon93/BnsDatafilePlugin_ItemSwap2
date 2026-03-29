@@ -18,7 +18,7 @@ jobs:
       updated: ${{ steps.update_submodules.outputs.updated }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive

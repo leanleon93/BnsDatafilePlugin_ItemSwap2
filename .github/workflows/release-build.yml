@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
@@ -79,7 +79,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
@@ -110,7 +110,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -135,10 +135,10 @@ jobs:
       - name: Set DLL paths output
         id: find_dlls
         run: |
-          echo "dll_path_eu=artifacts/build-Release-ON-OFF-OFF/bin/Release/itemswap_NEO.dll" >> $GITHUB_OUTPUT
-          echo "dll_path_live_eu=artifacts/build-Release-ON-OFF-ON/bin/Release/itemswap_LIVE.dll" >> $GITHUB_OUTPUT
-          echo "dll_path_kr=artifacts/build-Release-ON-ON-OFF/bin/Release/itemswap_NEO_KR.dll" >> $GITHUB_OUTPUT
-          echo "dll_path_live_kr=artifacts/build-Release-ON-ON-ON/bin/Release/itemswap_LIVE_KR.dll" >> $GITHUB_OUTPUT
+          echo "dll_path_eu=artifacts/build-Release-ON-OFF-OFF/itemswap_NEO.dll" >> $GITHUB_OUTPUT
+          echo "dll_path_live_eu=artifacts/build-Release-ON-OFF-ON/itemswap_LIVE.dll" >> $GITHUB_OUTPUT
+          echo "dll_path_kr=artifacts/build-Release-ON-ON-OFF/itemswap_NEO_KR.dll" >> $GITHUB_OUTPUT
+          echo "dll_path_live_kr=artifacts/build-Release-ON-ON-ON/itemswap_LIVE_KR.dll" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Generate release notes

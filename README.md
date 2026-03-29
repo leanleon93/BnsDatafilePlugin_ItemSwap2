@@ -1,4 +1,4 @@
-﻿# BNS Datafile Plugin ItemSwap2 
+﻿# BNS Datafile Plugin ItemSwap
 
 A plugin for BNS that allows you to intercept and modify item data lookups using ImGui for configuration.
 

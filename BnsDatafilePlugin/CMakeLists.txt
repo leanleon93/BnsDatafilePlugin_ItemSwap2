@@ -1,6 +1,6 @@
 ﻿# SET YOUR PLUGIN NAME AND VERSION HERE
 set(PLUGIN_NAME "ItemSwap")
-project ("${PLUGIN_NAME}Plugin" VERSION 2.0.0)
+project ("${PLUGIN_NAME}Plugin" VERSION ${GIT_VERSION})
 
 configure_file(pluginversion.h.in pluginversion.h @ONLY)
 configure_file(${CMAKE_SOURCE_DIR}/version.rc.in version.rc @ONLY)

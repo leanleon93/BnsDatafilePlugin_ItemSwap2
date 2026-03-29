@@ -27,6 +27,14 @@ void ConfigUiPanel(void* userData) {
 		imgui->TextColored(1.0f, 0.5f, 0.0f, 1.0f, msg.c_str());
 		return;
 	}
+
+	static int toRemove = -1;
+	if (toRemove > -1) {
+		g_pluginConfig.configData.RemoveItemSwapByIndex(toRemove);
+		g_pluginConfig.Save();
+		toRemove = -1;
+	}
+
 	if (imgui->Checkbox((std::string("Enable ") + PLUGIN_NAME).c_str(), &g_pluginConfig.configData.enabled)) {
 		g_pluginConfig.Save();
 	}
@@ -65,7 +73,7 @@ void ConfigUiPanel(void* userData) {
 		int idx = 0;
 		auto& itemSwaps = g_pluginConfig.configData.GetItemSwaps();
 		for (auto& swap : itemSwaps) {
-			imgui->PushIdInt(idx);
+			imgui->PushId((std::to_string(idx) + swap.name).c_str());
 
 			if (g_imgui->Checkbox("", &swap.enabled)) {
 				g_pluginConfig.configData.InvalidateCache();
@@ -97,15 +105,11 @@ void ConfigUiPanel(void* userData) {
 				strncpy_s(newSwapName, swap.name.c_str(), sizeof(newSwapName) - 1);
 				g_newSwapFrom = swap.fromId;
 				g_newSwapTo = swap.toId;
-				g_pluginConfig.configData.RemoveItemSwap(swap);
-				g_pluginConfig.Save();
-				break; // Break out of the loop since the vector has changed
+				toRemove = idx;
 			}
 			g_imgui->SameLine(0.0f, 5.0f);
 			if (g_imgui->SmallButton("Remove")) {
-				g_pluginConfig.configData.RemoveItemSwap(swap);
-				g_pluginConfig.Save();
-				break; // Break out of the loop since the vector has changed
+				toRemove = idx;
 			}
 			imgui->NextColumn();
 

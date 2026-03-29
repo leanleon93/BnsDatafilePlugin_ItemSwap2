@@ -45,5 +45,7 @@ jobs:
           
   build-and-release:
     if: needs.update-submodules.outputs.updated == 'true'
-    uses: ./.github/workflows/cmake-single-platform.yml
+    uses: ./.github/workflows/release-build.yml
     needs: update-submodules
+    with:
+      bump: "patch"

@@ -27,7 +27,7 @@ public:
 		mutable std::unordered_map<int, int> cachedSwapMap = {}; //not serialized, generated on demand for quick lookups
 		mutable bool cacheValid = false; //not serialized, indicates if the cache is valid or needs to be regenerated
 
-		
+
 	public:
 		// Invalidate cache when data changes
 		void InvalidateCache() {
@@ -80,6 +80,13 @@ public:
 				});
 			if (it != itemSwaps.end()) {
 				itemSwaps.erase(it, itemSwaps.end());
+				InvalidateCache();
+			}
+		}
+
+		void RemoveItemSwapByIndex(size_t index) {
+			if (index < itemSwaps.size()) {
+				itemSwaps.erase(itemSwaps.begin() + index);
 				InvalidateCache();
 			}
 		}

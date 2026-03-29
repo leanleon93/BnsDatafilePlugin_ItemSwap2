@@ -6,16 +6,36 @@ endif()
 
 project("BnsDatafilePluginMonorepo")
 
+# Ensure Git is available
+find_package(Git REQUIRED)
+
+ execute_process(
+     COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
+     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+     OUTPUT_VARIABLE GIT_VERSION
+     ERROR_VARIABLE GIT_ERROR
+     RESULT_VARIABLE GIT_RESULT
+     OUTPUT_STRIP_TRAILING_WHITESPACE
+ )
+
+if(NOT GIT_RESULT EQUAL 0)
+    set(GIT_VERSION "0.0.0") # Default version if no tags are found
+    message(WARNING "Git describe failed: ${GIT_ERROR}. Using default version ${GIT_VERSION}.")
+else()
+    # Remove the "v" prefix if it exists
+    string(REGEX REPLACE "^v" "" GIT_VERSION "${GIT_VERSION}")
+endif()
+
 string(TIMESTAMP CURRENT_YEAR "%Y")
 set(COMPANY_NAME "")
 set(COPYRIGHT "© ${CURRENT_YEAR} ${COMPANY_NAME}")
-
 option(ENABLE_PERSISTENCE "Enable persistence for the plugin configuration" OFF)
 option(BNSKR, "Build for BNSKR version" OFF)
 option(BNSLIVE, "Build for BNSLIVE version" OFF)
 
 # Output build variables for debugging
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+message(STATUS "PLUGIN_VERSION: ${GIT_VERSION}")
 message(STATUS "ENABLE_PERSISTENCE: ${ENABLE_PERSISTENCE}")
 message(STATUS "BNSKR: ${BNSKR}")
 message(STATUS "BNSLIVE: ${BNSLIVE}")
@@ -29,8 +49,6 @@ if(BNSKR)
     add_compile_definitions(BNSKR)
 endif()
 
-# Ensure Git is available
-find_package(Git REQUIRED)
 
 set(BNSPLUGIN_TABLES_FILE_NEO "${PROJECT_SOURCE_DIR}/external/BnsPluginTables/NEO/Generated/include/DrEl.h")
 set(BNSPLUGIN_TABLES_FILE_LIVE "${PROJECT_SOURCE_DIR}/external/BnsPluginTables/LIVE/Generated/include/DrEl.h")

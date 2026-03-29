@@ -1,0 +1,36 @@
+name: Build and Release Trigger
+
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore:
+      - '.github/actions/**'
+      - 'README.md'
+      - 'README.*'
+      - '.gitignore'
+      - '.gitattributes'
+      - '.github/**'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+        
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+  
+permissions:
+  contents: write
+  
+jobs:
+  build-and-release:
+    uses: ./.github/workflows/release-build.yml
+    with:
+      bump: ${{ github.event.inputs.bump || 'patch' }}

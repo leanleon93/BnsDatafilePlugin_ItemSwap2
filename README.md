@@ -1,4 +1,4 @@
-﻿# BNS Datafile Plugin ItemSwap2 
+﻿# BNS Datafile Plugin ItemSwap
 
 A plugin for BNS that allows you to intercept and modify item data lookups using ImGui for configuration.
 
@@ -13,6 +13,9 @@ A plugin for BNS that allows you to intercept and modify item data lookups using
 ## Special Ids
 - `69696969` - Zulia Outfit  (JinF only)
 - `69696970` - Lancer Outfit (Jin only)
+
+## Disclaimer
+- The config xml of versions prior to 2.0.0 is not compatible.
 
 ## 🔗 Dependencies
 

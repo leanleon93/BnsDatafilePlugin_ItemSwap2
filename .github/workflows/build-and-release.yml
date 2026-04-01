@@ -12,6 +12,11 @@ on:
       - '.github/**'
   workflow_dispatch:
     inputs:
+      release:
+        description: 'Create a release'
+        required: true
+        default: false
+        type: boolean
       bump:
         description: 'Version bump type'
         required: false
@@ -34,3 +39,4 @@ jobs:
     uses: ./.github/workflows/release-build.yml
     with:
       bump: ${{ github.event.inputs.bump || 'patch' }}
+      release: ${{ github.event.inputs.release || false }}

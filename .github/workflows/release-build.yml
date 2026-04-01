@@ -5,7 +5,8 @@ on:
     inputs:
       release:
         required: true
-        type: boolean
+        type: string
+        default: "false"
       bump:
         required: false
         type: string
@@ -65,8 +66,7 @@ jobs:
           echo "[DEBUG] NEW_TAG='$NEW_TAG'"
           echo "tag_name=$NEW_TAG" >> $GITHUB_OUTPUT
 
-          CREATE_RELEASE="${{ inputs.release }}"
-          if [ "$CREATE_RELEASE" = "true" ]; then
+          if [ "${{ inputs.release }}" = "true" ]; then
             git tag -a $NEW_TAG -m "Release $NEW_TAG"
             git push origin $NEW_TAG
           else
@@ -106,7 +106,7 @@ jobs:
         run: cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
 
       - name: Upload DLLs
-        if: ${{ inputs.release }}
+        if: ${{ inputs.release == 'true' }}
         uses: actions/upload-artifact@v7.0.0
         with:
           name: build-${{ matrix.build_type }}-${{ matrix.enable_persistence }}-${{ matrix.bnskr }}-${{ matrix.bnslive }}
@@ -114,7 +114,7 @@ jobs:
             ${{github.workspace}}/build/bin/${{ matrix.build_type }}/**/*.dll
 
   post_build:
-    if: ${{ inputs.release }}
+    if: ${{ inputs.release == 'true' }}
     needs: [build, create_tag]
     runs-on: ubuntu-latest
 

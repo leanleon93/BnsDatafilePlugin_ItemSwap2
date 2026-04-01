@@ -38,4 +38,4 @@ jobs:
     uses: ./.github/workflows/release-build.yml
     with:
       bump: ${{ github.event.inputs.bump || 'patch' }}
-      release: ${{ github.event.inputs.release != null && github.event.inputs.release }}
+      release: ${{ github.event.inputs.release == true && 'true' || 'false' }}

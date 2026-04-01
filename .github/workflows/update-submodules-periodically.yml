@@ -49,4 +49,4 @@ jobs:
     needs: update-submodules
     with:
       bump: "patch"
-      release: true
+      release: "true"

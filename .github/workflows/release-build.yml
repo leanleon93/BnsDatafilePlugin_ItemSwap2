@@ -6,7 +6,6 @@ on:
       release:
         required: true
         type: boolean
-        default: false
       bump:
         required: false
         type: string

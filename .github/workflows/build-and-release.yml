@@ -37,5 +37,5 @@ jobs:
   build-and-release:
     uses: ./.github/workflows/release-build.yml
     with:
-      bump: ${{ github.event.inputs.bump || 'patch' }}
-      release: ${{ github.event.inputs.release == true && 'true' || 'false' }}
+      bump: ${{ github.event.inputs.bump || 'patch' }} # handle null case for push events
+      release: ${{ github.event.inputs.release == 'true' && 'true' || 'false' }} # handle null case for push events

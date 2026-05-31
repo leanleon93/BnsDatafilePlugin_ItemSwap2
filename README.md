@@ -1,4 +1,12 @@
-﻿# BNS Datafile Plugin ItemSwap
+**⚠️ Notice**
+
+This project has been discontinued and is no longer actively maintained.
+No new features, bug fixes, or support will be provided.
+I consider this project and its architecture a failure.
+
+---
+
+# BNS Datafile Plugin ItemSwap
 
 A plugin for BNS that allows you to intercept and modify item data lookups using ImGui for configuration.
 

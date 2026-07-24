@@ -38,4 +38,5 @@ jobs:
     uses: ./.github/workflows/release-build.yml
     with:
       bump: ${{ github.event.inputs.bump || 'patch' }} # handle null case for push events
+      ref: ${{ github.sha }}
       release: ${{ github.event.inputs.release == 'true' && 'true' || 'false' }} # handle null case for push events
